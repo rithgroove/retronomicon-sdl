@@ -1,0 +1,47 @@
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+build/
+build-aarch64/
+CMakeFiles/
+
+/external/*
+!/external/SDL2
+!/external/SDL2_ttf
+!/external/SDL2_image
+!/external/SDL2_mixer
+!/external/libavif
+!/external/catch2
+!/external/json
+
+documentation/
