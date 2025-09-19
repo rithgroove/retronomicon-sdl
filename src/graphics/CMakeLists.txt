@@ -8,4 +8,5 @@ target_include_directories(
     retronomicon-sdl-graphics PUBLIC
     ${RETRO_DIR}/include
     ${RETRO_SDL_DIR}/include
+    ${RETRO_SDL_DIR}/external/SDL2/include
 )

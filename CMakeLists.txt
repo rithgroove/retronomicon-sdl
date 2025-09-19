@@ -20,8 +20,8 @@ add_subdirectory(src)
 
 # Public include paths
 include_directories(
-    ${RETRO_INCLUDE_DIR}/include
-    ${RETRO_INCLUDE_DIR}/external/SDL2/include
+    ${RETRO_SDL_DIR}/include
+    ${RETRO_SDL_DIR}/external/SDL2/include
 )
 
 # Optional: Message info

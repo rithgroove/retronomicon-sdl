@@ -1,7 +1,7 @@
 #pragma once
 
 #include "retronomicon/graphics/renderer/i_renderer.h"
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <string>
 
 namespace retronomicon::sdl {
