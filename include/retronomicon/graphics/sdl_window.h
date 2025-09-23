@@ -2,7 +2,7 @@
 
 #include <SDL.h>
 #include <stdexcept>
-#include "retronomicon-core/graphics/i_window.h"
+#include "retronomicon/graphics/i_window.h"
 
 namespace retronomicon::sdl::graphics {
 
