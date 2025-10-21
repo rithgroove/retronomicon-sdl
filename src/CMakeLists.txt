@@ -11,6 +11,7 @@ add_library(retronomicon-sdl)
 target_link_libraries(retronomicon-sdl
     PUBLIC
         retronomicon-sdl-graphics
+        SDL2
 )
 
 # Later you can easily extend here:
