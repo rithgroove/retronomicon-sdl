@@ -1,4 +1,4 @@
-#include "graphics/sdl_window.h"
+#include "retronomicon/graphics/sdl_window.h"
 
 namespace retronomicon::sdl::graphics {
 

@@ -1,4 +1,4 @@
-#include "retronomicon/graphics/sdl/sdl_texture.h"
+#include "retronomicon/graphics/sdl_texture.h"
 #include <stdexcept>
 
 namespace retronomicon::graphics::sdl {
