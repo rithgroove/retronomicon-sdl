@@ -2,7 +2,7 @@
 #include <stdexcept>
 #include <iostream>
 
-namespace retronomicon::sdl {
+namespace retronomicon::sdl::graphics::renderer {
 
     SDLRenderer::SDLRenderer(const std::string& title, int width, int height)
         : m_title(title), m_width(width), m_height(height) {}

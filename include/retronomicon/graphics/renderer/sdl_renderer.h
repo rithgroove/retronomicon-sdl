@@ -4,7 +4,7 @@
 #include <SDL.h>
 #include <string>
 
-namespace retronomicon::sdl {
+namespace retronomicon::sdl::graphics::renderer {
 
     /**
      * @brief SDL-based implementation of the IRenderer interface.
@@ -33,6 +33,7 @@ namespace retronomicon::sdl {
         /// Clean up SDL resources.
         void shutdown() override;
 
+        SDL_Renderer* getRenderer(){return m_renderer;}
     private:
         std::string m_title;
         int m_width;

@@ -1,7 +1,7 @@
 #include "retronomicon/graphics/sdl_texture.h"
 #include <stdexcept>
 
-namespace retronomicon::graphics::sdl {
+namespace retronomicon::sdl::graphics {
 
     SDLTexture::SDLTexture(SDL_Renderer* renderer, const retronomicon::asset::ImageAsset& image) {
         // Create surface from raw RGBA pixels

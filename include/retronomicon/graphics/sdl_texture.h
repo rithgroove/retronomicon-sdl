@@ -5,7 +5,7 @@
 #include "retronomicon/graphics/texture.h"
 #include "retronomicon/asset/image_asset.h"
 
-namespace retronomicon::graphics::sdl {
+namespace retronomicon::sdl::graphics {
     using retronomicon::graphics::Texture;
 
     class SDLTexture : public Texture {
