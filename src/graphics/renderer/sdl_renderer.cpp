@@ -38,17 +38,29 @@ namespace retronomicon::sdl::graphics::renderer {
         std::cout << "SDLRenderer initialized with window: " << m_title << std::endl;
     }
 
-    void SDLRenderer::render() {
+    void SDLRenderer::clear() {
         if (!m_initialized) return;
 
         // Clear screen with blue
         SDL_SetRenderDrawColor(m_renderer, 0, 100, 255, 255);
         SDL_RenderClear(m_renderer);
-
-        // Present to screen
-        SDL_RenderPresent(m_renderer);
     }
 
+    void SDLRenderer::render(std::shared_ptr<Texture> texture,
+                        const Vec2& position,
+                        const Vec2& scale,
+                        float rotation,
+                        float alpha) {
+        std::cout<<"not implemented yet" << std::endl;
+        if (!m_initialized) return;
+
+    }
+
+    void SDLRenderer::show(){
+        if (!m_initialized) return;
+        SDL_RenderPresent(m_renderer);
+
+    }
     void SDLRenderer::shutdown() {
         if (m_renderer) {
             SDL_DestroyRenderer(m_renderer);

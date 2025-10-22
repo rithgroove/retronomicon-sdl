@@ -6,6 +6,8 @@
 
 namespace retronomicon::sdl::graphics::renderer {
 
+        using retronomicon::graphics::Texture;
+        using retronomicon::math::Vec2;
     /**
      * @brief SDL-based implementation of the IRenderer interface.
      */
@@ -28,10 +30,18 @@ namespace retronomicon::sdl::graphics::renderer {
         void init() override;
 
         /// Render a test background color.
-        void render() override;
+        void render(std::shared_ptr<Texture> texture,
+                        const Vec2& position,
+                        const Vec2& scale,
+                        float rotation = 0.0f,
+                        float alpha = 1.0f) override;
 
         /// Clean up SDL resources.
         void shutdown() override;
+
+        void show() override;
+
+        void clear() override;
 
         SDL_Renderer* getRenderer(){return m_renderer;}
     private:
