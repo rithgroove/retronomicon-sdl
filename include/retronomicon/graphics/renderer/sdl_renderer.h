@@ -42,6 +42,8 @@ namespace retronomicon::sdl::graphics::renderer {
         void show() override;
 
         void clear() override;
+        int getWidth() const override {return m_width;}
+        int getHeight() const override {return m_height;}
 
         SDL_Renderer* getRenderer(){return m_renderer;}
     private:
