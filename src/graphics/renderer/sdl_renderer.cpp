@@ -86,11 +86,18 @@ void SDLRenderer::renderQuad(std::shared_ptr<Texture> texture,
                      static_cast<int>(source.getWidth()),
                      static_cast<int>(source.getHeight())};
 
-    SDL_FRect dstRect{target.getX(), target.getY(), target.getWidth(), target.getHeight()};
+    float anchorModifierX = target.getWidth()*target.getAnchor().getX();
+    float anchorModifierY = target.getHeight()*target.getAnchor().getY();
+    float centerX = target.getX();
+    float centerY = target.getY();
+    float x = target.getX()-anchorModifierX;
+    float y = target.getY()-anchorModifierY;
+
+    SDL_FRect dstRect{x, y, target.getWidth(), target.getHeight()};
 
     SDL_FPoint center{
-        static_cast<float>(target.getWidth() / 2.0f),
-        static_cast<float>(target.getHeight() / 2.0f)
+        anchorModifierX,
+        anchorModifierY
     };
 
     // Apply alpha
