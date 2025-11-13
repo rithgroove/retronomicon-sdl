@@ -42,7 +42,7 @@ public:
     int getWidth() const override { return m_width; }
     int getHeight() const override { return m_height; }
 
-    SDL_Renderer* getRenderer() { return m_renderer; }
+    SDL_Renderer* getRawRenderer() { return m_renderer; }
 
     bool shouldClose() const;
 private:

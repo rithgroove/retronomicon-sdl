@@ -3,14 +3,14 @@
 
 namespace retronomicon::sdl::graphics {
 
-    SDLTexture::SDLTexture(SDL_Renderer* renderer, const retronomicon::asset::ImageAsset& image) {
+    SDLTexture::SDLTexture(SDL_Renderer* renderer, std::shared_ptr<ImageAsset> image) {
         // Create surface from raw RGBA pixels
         SDL_Surface* surface = SDL_CreateRGBSurfaceFrom(
-            (void*)image.getPixels().data(),
-            image.getWidth(),
-            image.getHeight(),
+            (void*)image->getPixels().data(),
+            image->getWidth(),
+            image->getHeight(),
             32,                                // bits per pixel
-            image.getWidth() * 4,              // pitch (bytes per row)
+            image->getWidth() * 4,              // pitch (bytes per row)
             0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000 // RGBA masks
         );
 
@@ -25,8 +25,8 @@ namespace retronomicon::sdl::graphics {
             throw std::runtime_error("Failed to create SDL_Texture from surface");
         }
 
-        m_width = image.getWidth();
-        m_height = image.getHeight();
+        m_width = image->getWidth();
+        m_height = image->getHeight();
 
         SDL_FreeSurface(surface);
     }
