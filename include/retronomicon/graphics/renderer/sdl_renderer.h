@@ -44,6 +44,7 @@ public:
 
     SDL_Renderer* getRenderer() { return m_renderer; }
 
+    bool shouldClose() const;
 private:
     std::string m_title;
     int m_width;
