@@ -13,12 +13,10 @@ using retronomicon::math::Vec2;
 using retronomicon::math::Rect;
 using retronomicon::sdl::graphics::SDLColor;
 
-/**
- * @brief SDL-based implementation of the IRenderer interface.
- */
 class SDLRenderer : public retronomicon::graphics::renderer::IRenderer {
 public:
-    SDLRenderer(const std::string& title, int width, int height);
+    // 🚀 NEW: We receive an existing window + renderer
+    SDLRenderer(SDL_Window* window, SDL_Renderer* renderer, int width, int height);
     ~SDLRenderer() override;
 
     void init() override;
@@ -45,13 +43,14 @@ public:
     SDL_Renderer* getRawRenderer() { return m_renderer; }
 
     bool shouldClose() const;
+
 private:
-    std::string m_title;
+    SDL_Window*   m_window   = nullptr;
+    SDL_Renderer* m_renderer = nullptr;
+
     int m_width;
     int m_height;
 
-    SDL_Window* m_window = nullptr;
-    SDL_Renderer* m_renderer = nullptr;
     bool m_initialized = false;
 };
 
