@@ -1,26 +1,30 @@
 #include "retronomicon/input/sdl_input_map.h"
 
-namespace retronomicon::input {
+namespace retronomicon::sdl::input {
 
-    void SdlInputMap::updateFromRawInput(const SDLRawInput& raw, InputState& state) const {
-        // Action bindings
-        for (const auto& [key, action] : getActionBindings()) {
-            if (raw.isKeyPressed(key)) {
-                state.setAction(action, true);
-            } else {
-                state.setAction(action, false);
-            }
+    using retronomicon::input::Key;
+    using retronomicon::input::InputState;
+
+    void SDLInputMap::updateFromRawInput(const SDLRawInput& raw,
+                                         InputState& state) const
+    {
+        // --- Update actions ---
+        for (const auto& [key, actionName] : getActionBindings()) {
+            bool pressed = raw.isKeyPressed(key);
+            state.setAction(actionName, pressed);
         }
 
-        // Axis bindings
-        for (const auto& [axis, bindings] : getAxisBindings()) {
-            float value = 0.0f;
+        // --- Update axes ---
+        for (const auto& [axisName, bindings] : getAxisBindings()) {
+            float value = 0.f;
+
             for (const auto& [key, weight] : bindings) {
                 if (raw.isKeyPressed(key)) {
                     value += weight;
                 }
             }
-            state.setAxis(axis, value);
+
+            state.setAxis(axisName, value);
         }
     }
 

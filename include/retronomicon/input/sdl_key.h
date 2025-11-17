@@ -1,137 +1,137 @@
 #pragma once
 
-#include <GLFW/glfw3.h>
+#include <SDL2/SDL.h>
 #include "retronomicon/input/key.h"
 
-namespace retronomicon::opengl::input {
+namespace retronomicon::sdl::input {
 
-    inline int toGLFWKey(retronomicon::input::Key key) {
+    inline SDL_Keycode toSDLKey(retronomicon::input::Key key) {
         using retronomicon::input::Key;
 
         switch (key) {
 
             // --- Alphabet ---
-            case Key::A: return GLFW_KEY_A;
-            case Key::B: return GLFW_KEY_B;
-            case Key::C: return GLFW_KEY_C;
-            case Key::D: return GLFW_KEY_D;
-            case Key::E: return GLFW_KEY_E;
-            case Key::F: return GLFW_KEY_F;
-            case Key::G: return GLFW_KEY_G;
-            case Key::H: return GLFW_KEY_H;
-            case Key::I: return GLFW_KEY_I;
-            case Key::J: return GLFW_KEY_J;
-            case Key::K: return GLFW_KEY_K;
-            case Key::L: return GLFW_KEY_L;
-            case Key::M: return GLFW_KEY_M;
-            case Key::N: return GLFW_KEY_N;
-            case Key::O: return GLFW_KEY_O;
-            case Key::P: return GLFW_KEY_P;
-            case Key::Q: return GLFW_KEY_Q;
-            case Key::R: return GLFW_KEY_R;
-            case Key::S: return GLFW_KEY_S;
-            case Key::T: return GLFW_KEY_T;
-            case Key::U: return GLFW_KEY_U;
-            case Key::V: return GLFW_KEY_V;
-            case Key::W: return GLFW_KEY_W;
-            case Key::X: return GLFW_KEY_X;
-            case Key::Y: return GLFW_KEY_Y;
-            case Key::Z: return GLFW_KEY_Z;
+            case Key::A: return SDLK_a;
+            case Key::B: return SDLK_b;
+            case Key::C: return SDLK_c;
+            case Key::D: return SDLK_d;
+            case Key::E: return SDLK_e;
+            case Key::F: return SDLK_f;
+            case Key::G: return SDLK_g;
+            case Key::H: return SDLK_h;
+            case Key::I: return SDLK_i;
+            case Key::J: return SDLK_j;
+            case Key::K: return SDLK_k;
+            case Key::L: return SDLK_l;
+            case Key::M: return SDLK_m;
+            case Key::N: return SDLK_n;
+            case Key::O: return SDLK_o;
+            case Key::P: return SDLK_p;
+            case Key::Q: return SDLK_q;
+            case Key::R: return SDLK_r;
+            case Key::S: return SDLK_s;
+            case Key::T: return SDLK_t;
+            case Key::U: return SDLK_u;
+            case Key::V: return SDLK_v;
+            case Key::W: return SDLK_w;
+            case Key::X: return SDLK_x;
+            case Key::Y: return SDLK_y;
+            case Key::Z: return SDLK_z;
 
             // --- Digits ---
-            case Key::Num0: return GLFW_KEY_0;
-            case Key::Num1: return GLFW_KEY_1;
-            case Key::Num2: return GLFW_KEY_2;
-            case Key::Num3: return GLFW_KEY_3;
-            case Key::Num4: return GLFW_KEY_4;
-            case Key::Num5: return GLFW_KEY_5;
-            case Key::Num6: return GLFW_KEY_6;
-            case Key::Num7: return GLFW_KEY_7;
-            case Key::Num8: return GLFW_KEY_8;
-            case Key::Num9: return GLFW_KEY_9;
+            case Key::Num0: return SDLK_0;
+            case Key::Num1: return SDLK_1;
+            case Key::Num2: return SDLK_2;
+            case Key::Num3: return SDLK_3;
+            case Key::Num4: return SDLK_4;
+            case Key::Num5: return SDLK_5;
+            case Key::Num6: return SDLK_6;
+            case Key::Num7: return SDLK_7;
+            case Key::Num8: return SDLK_8;
+            case Key::Num9: return SDLK_9;
 
             // --- Function keys ---
-            case Key::F1:  return GLFW_KEY_F1;
-            case Key::F2:  return GLFW_KEY_F2;
-            case Key::F3:  return GLFW_KEY_F3;
-            case Key::F4:  return GLFW_KEY_F4;
-            case Key::F5:  return GLFW_KEY_F5;
-            case Key::F6:  return GLFW_KEY_F6;
-            case Key::F7:  return GLFW_KEY_F7;
-            case Key::F8:  return GLFW_KEY_F8;
-            case Key::F9:  return GLFW_KEY_F9;
-            case Key::F10: return GLFW_KEY_F10;
-            case Key::F11: return GLFW_KEY_F11;
-            case Key::F12: return GLFW_KEY_F12;
+            case Key::F1:  return SDLK_F1;
+            case Key::F2:  return SDLK_F2;
+            case Key::F3:  return SDLK_F3;
+            case Key::F4:  return SDLK_F4;
+            case Key::F5:  return SDLK_F5;
+            case Key::F6:  return SDLK_F6;
+            case Key::F7:  return SDLK_F7;
+            case Key::F8:  return SDLK_F8;
+            case Key::F9:  return SDLK_F9;
+            case Key::F10: return SDLK_F10;
+            case Key::F11: return SDLK_F11;
+            case Key::F12: return SDLK_F12;
 
             // --- Modifiers ---
-            case Key::LeftShift:   return GLFW_KEY_LEFT_SHIFT;
-            case Key::RightShift:  return GLFW_KEY_RIGHT_SHIFT;
-            case Key::LeftControl: return GLFW_KEY_LEFT_CONTROL;
-            case Key::RightControl:return GLFW_KEY_RIGHT_CONTROL;
-            case Key::LeftAlt:     return GLFW_KEY_LEFT_ALT;
-            case Key::RightAlt:    return GLFW_KEY_RIGHT_ALT;
-            case Key::LeftSuper:   return GLFW_KEY_LEFT_SUPER;
-            case Key::RightSuper:  return GLFW_KEY_RIGHT_SUPER;
+            case Key::LeftShift:   return SDLK_LSHIFT;
+            case Key::RightShift:  return SDLK_RSHIFT;
+            case Key::LeftControl: return SDLK_LCTRL;
+            case Key::RightControl:return SDLK_RCTRL;
+            case Key::LeftAlt:     return SDLK_LALT;
+            case Key::RightAlt:    return SDLK_RALT;
+            case Key::LeftSuper:   return SDLK_LGUI;
+            case Key::RightSuper:  return SDLK_RGUI;
 
             // --- Arrow keys ---
-            case Key::Up:    return GLFW_KEY_UP;
-            case Key::Down:  return GLFW_KEY_DOWN;
-            case Key::Left:  return GLFW_KEY_LEFT;
-            case Key::Right: return GLFW_KEY_RIGHT;
+            case Key::Up:    return SDLK_UP;
+            case Key::Down:  return SDLK_DOWN;
+            case Key::Left:  return SDLK_LEFT;
+            case Key::Right: return SDLK_RIGHT;
 
             // --- Special keys ---
-            case Key::Space:     return GLFW_KEY_SPACE;
-            case Key::Enter:     return GLFW_KEY_ENTER;
-            case Key::Escape:    return GLFW_KEY_ESCAPE;
-            case Key::Tab:       return GLFW_KEY_TAB;
-            case Key::Backspace: return GLFW_KEY_BACKSPACE;
-            case Key::DeleteKey: return GLFW_KEY_DELETE;
-            case Key::Insert:    return GLFW_KEY_INSERT;
-            case Key::Home:      return GLFW_KEY_HOME;
-            case Key::End:       return GLFW_KEY_END;
-            case Key::PageUp:    return GLFW_KEY_PAGE_UP;
-            case Key::PageDown:  return GLFW_KEY_PAGE_DOWN;
+            case Key::Space:     return SDLK_SPACE;
+            case Key::Enter:     return SDLK_RETURN;
+            case Key::Escape:    return SDLK_ESCAPE;
+            case Key::Tab:       return SDLK_TAB;
+            case Key::Backspace: return SDLK_BACKSPACE;
+            case Key::DeleteKey: return SDLK_DELETE;
+            case Key::Insert:    return SDLK_INSERT;
+            case Key::Home:      return SDLK_HOME;
+            case Key::End:       return SDLK_END;
+            case Key::PageUp:    return SDLK_PAGEUP;
+            case Key::PageDown:  return SDLK_PAGEDOWN;
 
             // --- Punctuation ---
-            case Key::Minus:        return GLFW_KEY_MINUS;
-            case Key::Plus:         return GLFW_KEY_EQUAL;
-            case Key::Comma:        return GLFW_KEY_COMMA;
-            case Key::Period:       return GLFW_KEY_PERIOD;
-            case Key::Slash:        return GLFW_KEY_SLASH;
-            case Key::Semicolon:    return GLFW_KEY_SEMICOLON;
-            case Key::Apostrophe:   return GLFW_KEY_APOSTROPHE;
-            case Key::LeftBracket:  return GLFW_KEY_LEFT_BRACKET;
-            case Key::RightBracket: return GLFW_KEY_RIGHT_BRACKET;
-            case Key::Backslash:    return GLFW_KEY_BACKSLASH;
-            case Key::Grave:        return GLFW_KEY_GRAVE_ACCENT;
+            case Key::Minus:        return SDLK_MINUS;
+            case Key::Plus:         return SDLK_EQUALS;
+            case Key::Comma:        return SDLK_COMMA;
+            case Key::Period:       return SDLK_PERIOD;
+            case Key::Slash:        return SDLK_SLASH;
+            case Key::Semicolon:    return SDLK_SEMICOLON;
+            case Key::Apostrophe:   return SDLK_QUOTE;
+            case Key::LeftBracket:  return SDLK_LEFTBRACKET;
+            case Key::RightBracket: return SDLK_RIGHTBRACKET;
+            case Key::Backslash:    return SDLK_BACKSLASH;
+            case Key::Grave:        return SDLK_BACKQUOTE;
 
             // --- Numpad ---
-            case Key::Numpad0:        return GLFW_KEY_KP_0;
-            case Key::Numpad1:        return GLFW_KEY_KP_1;
-            case Key::Numpad2:        return GLFW_KEY_KP_2;
-            case Key::Numpad3:        return GLFW_KEY_KP_3;
-            case Key::Numpad4:        return GLFW_KEY_KP_4;
-            case Key::Numpad5:        return GLFW_KEY_KP_5;
-            case Key::Numpad6:        return GLFW_KEY_KP_6;
-            case Key::Numpad7:        return GLFW_KEY_KP_7;
-            case Key::Numpad8:        return GLFW_KEY_KP_8;
-            case Key::Numpad9:        return GLFW_KEY_KP_9;
-            case Key::NumpadAdd:      return GLFW_KEY_KP_ADD;
-            case Key::NumpadSubtract: return GLFW_KEY_KP_SUBTRACT;
-            case Key::NumpadMultiply: return GLFW_KEY_KP_MULTIPLY;
-            case Key::NumpadDivide:   return GLFW_KEY_KP_DIVIDE;
-            case Key::NumpadEnter:    return GLFW_KEY_KP_ENTER;
-            case Key::NumpadDecimal:  return GLFW_KEY_KP_DECIMAL;
+            case Key::Numpad0:        return SDLK_KP_0;
+            case Key::Numpad1:        return SDLK_KP_1;
+            case Key::Numpad2:        return SDLK_KP_2;
+            case Key::Numpad3:        return SDLK_KP_3;
+            case Key::Numpad4:        return SDLK_KP_4;
+            case Key::Numpad5:        return SDLK_KP_5;
+            case Key::Numpad6:        return SDLK_KP_6;
+            case Key::Numpad7:        return SDLK_KP_7;
+            case Key::Numpad8:        return SDLK_KP_8;
+            case Key::Numpad9:        return SDLK_KP_9;
+            case Key::NumpadAdd:      return SDLK_KP_PLUS;
+            case Key::NumpadSubtract: return SDLK_KP_MINUS;
+            case Key::NumpadMultiply: return SDLK_KP_MULTIPLY;
+            case Key::NumpadDivide:   return SDLK_KP_DIVIDE;
+            case Key::NumpadEnter:    return SDLK_KP_ENTER;
+            case Key::NumpadDecimal:  return SDLK_KP_DECIMAL;
 
-            // --- Mouse ---
-            case Key::MouseLeft:   return GLFW_MOUSE_BUTTON_LEFT;
-            case Key::MouseRight:  return GLFW_MOUSE_BUTTON_RIGHT;
-            case Key::MouseMiddle: return GLFW_MOUSE_BUTTON_MIDDLE;
+            // --- Mouse buttons ---
+            case Key::MouseLeft:   return SDL_BUTTON_LEFT;
+            case Key::MouseRight:  return SDL_BUTTON_RIGHT;
+            case Key::MouseMiddle: return SDL_BUTTON_MIDDLE;
 
-            // --- Unknown / unsupported ---
-            default: return -1;
+            // --- Unknown ---
+            default: return SDLK_UNKNOWN;
         }
     }
 
-} // namespace retronomicon::opengl::input
+} // namespace retronomicon::sdl::input

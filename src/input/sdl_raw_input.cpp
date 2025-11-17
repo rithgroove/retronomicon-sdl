@@ -1,6 +1,7 @@
 #include "retronomicon/input/sdl_raw_input.h"
+#include "retronomicon/input/sdl_key.h"
 
-namespace retronomicon::input {
+namespace retronomicon::sdl::input {
 
     SDLRawInput::SDLRawInput(SDL_Window* window)
         : m_window(window), m_mouseX(0), m_mouseY(0), m_mouseButtons(0) {
@@ -30,7 +31,7 @@ namespace retronomicon::input {
             }
         }
 
-        // Mouse state
+        // Mouse position + buttons
         Uint32 sdlButtons = SDL_GetMouseState(&m_mouseX, &m_mouseY);
 
         if (sdlButtons & SDL_BUTTON(SDL_BUTTON_LEFT))
@@ -49,9 +50,23 @@ namespace retronomicon::input {
         return m_events;
     }
 
-    bool SDLRawInput::isKeyPressed(int keyCode) const {
+    bool SDLRawInput::isKeyPressed(Key key) const {
+        SDL_Keycode sdlKey = toSDLKey(key);
+        if (sdlKey == SDLK_UNKNOWN)
+            return false;
+
+        // Mouse buttons (we treat them as virtual keys in the Key enum)
+        if (key == Key::MouseLeft)
+            return (SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
+        if (key == Key::MouseRight)
+            return (SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON(SDL_BUTTON_RIGHT)) != 0;
+        if (key == Key::MouseMiddle)
+            return (SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON(SDL_BUTTON_MIDDLE)) != 0;
+
+        // Keyboard
         const Uint8* state = SDL_GetKeyboardState(nullptr);
-        return state[SDL_GetScancodeFromKey(keyCode)] != 0;
+        SDL_Scancode sc = SDL_GetScancodeFromKey(sdlKey);
+        return state[sc] != 0;
     }
 
     int SDLRawInput::getMouseX() const {

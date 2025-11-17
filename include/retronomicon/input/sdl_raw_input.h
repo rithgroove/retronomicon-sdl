@@ -1,11 +1,14 @@
 #pragma once
 
 #include "retronomicon/input/raw_input.h"
+#include "retronomicon/input/key.h"
+#include "sdl_key.h"   // toSDLKey()
 #include <SDL2/SDL.h>
 #include <vector>
 #include <string>
 
-namespace retronomicon::input {
+namespace retronomicon::sdl::input {
+    using namespace retronomicon::input;
 
     class SDLRawInput : public RawInput {
     public:
@@ -17,7 +20,7 @@ namespace retronomicon::input {
 
         const std::vector<std::string>& getEvents() const override;
 
-        bool isKeyPressed(int keyCode) const override;
+        bool isKeyPressed(Key key) const override;
 
         int getMouseX() const override;
         int getMouseY() const override;

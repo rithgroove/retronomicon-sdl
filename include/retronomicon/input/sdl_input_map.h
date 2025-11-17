@@ -1,18 +1,17 @@
 #pragma once
 
 #include "retronomicon/input/input_map.h"
-#include "retronomicon/input/sdl_raw_input.h"
 #include "retronomicon/input/input_state.h"
-#include <SDL2/SDL.h>
+#include "retronomicon/input/sdl_raw_input.h"
 
-namespace retronomicon::input {
+namespace retronomicon::sdl::input {
 
-    class SdlInputMap : public InputMap {
+    class SDLInputMap : public InputMap {
     public:
         using InputMap::InputMap; // inherit constructors
 
         /**
-         * @brief Update InputState using current RawInput (SDL)
+         * @brief Update InputState using current RawInput (SDL backend)
          */
         void updateFromRawInput(const SDLRawInput& raw, InputState& state) const;
     };
