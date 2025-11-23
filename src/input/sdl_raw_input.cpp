@@ -1,6 +1,7 @@
 #include "retronomicon/input/sdl_raw_input.h"
 #include "retronomicon/input/sdl_key.h"
-
+#include <SDL2/SDL.h>
+#include <iostream>
 namespace retronomicon::sdl::input {
 
     SDLRawInput::SDLRawInput(SDL_Window* window)
@@ -9,13 +10,15 @@ namespace retronomicon::sdl::input {
 
     void SDLRawInput::poll() {
         m_events.clear();
-
-        SDL_Event event;
         m_mouseButtons = 0;
 
-        // Poll all SDL events
+        SDL_Event event;
+        std::cout<<"poll called"<<std::endl;
+        // Process all SDL events (same idea as GLFW polling)
         while (SDL_PollEvent(&event)) {
+
             switch (event.type) {
+
                 case SDL_QUIT:
                     m_events.push_back("QUIT");
                     break;
@@ -25,21 +28,20 @@ namespace retronomicon::sdl::input {
                         m_events.push_back("ESCAPE_PRESSED");
                     }
                     break;
-
-                default:
-                    break;
             }
         }
 
-        // Mouse position + buttons
-        Uint32 sdlButtons = SDL_GetMouseState(&m_mouseX, &m_mouseY);
+        // --- Mouse position & buttons (same as GLFWRawInput::poll) ---
+        Uint32 state = SDL_GetMouseState(&m_mouseX, &m_mouseY);
 
-        if (sdlButtons & SDL_BUTTON(SDL_BUTTON_LEFT))
-            m_mouseButtons |= 1 << 0;
-        if (sdlButtons & SDL_BUTTON(SDL_BUTTON_RIGHT))
-            m_mouseButtons |= 1 << 1;
-        if (sdlButtons & SDL_BUTTON(SDL_BUTTON_MIDDLE))
-            m_mouseButtons |= 1 << 2;
+        if (state & SDL_BUTTON(SDL_BUTTON_LEFT))
+            m_mouseButtons |= (1 << 0);
+
+        if (state & SDL_BUTTON(SDL_BUTTON_RIGHT))
+            m_mouseButtons |= (1 << 1);
+
+        if (state & SDL_BUTTON(SDL_BUTTON_MIDDLE))
+            m_mouseButtons |= (1 << 2);
     }
 
     void SDLRawInput::clear() {
@@ -51,22 +53,26 @@ namespace retronomicon::sdl::input {
     }
 
     bool SDLRawInput::isKeyPressed(Key key) const {
+
         SDL_Keycode sdlKey = toSDLKey(key);
         if (sdlKey == SDLK_UNKNOWN)
             return false;
 
-        // Mouse buttons (we treat them as virtual keys in the Key enum)
+        // Handle mouse buttons first (just like your GLFW version)
         if (key == Key::MouseLeft)
-            return (SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
-        if (key == Key::MouseRight)
-            return (SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON(SDL_BUTTON_RIGHT)) != 0;
-        if (key == Key::MouseMiddle)
-            return (SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON(SDL_BUTTON_MIDDLE)) != 0;
+            return (m_mouseButtons & (1 << 0)) != 0;
 
-        // Keyboard
-        const Uint8* state = SDL_GetKeyboardState(nullptr);
+        if (key == Key::MouseRight)
+            return (m_mouseButtons & (1 << 1)) != 0;
+
+        if (key == Key::MouseMiddle)
+            return (m_mouseButtons & (1 << 2)) != 0;
+
+        // --- Keyboard state ---
+        const Uint8* kstate = SDL_GetKeyboardState(nullptr);
         SDL_Scancode sc = SDL_GetScancodeFromKey(sdlKey);
-        return state[sc] != 0;
+
+        return kstate[sc] != 0;
     }
 
     int SDLRawInput::getMouseX() const {
@@ -81,4 +87,4 @@ namespace retronomicon::sdl::input {
         return m_mouseButtons;
     }
 
-} // namespace retronomicon::input
+} // namespace retronomicon::sdl::input
