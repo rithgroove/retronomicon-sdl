@@ -4,6 +4,7 @@ message(STATUS "==== Processing ${CMAKE_CURRENT_LIST_FILE} ====")
 add_subdirectory(graphics)
 add_subdirectory(manager)
 add_subdirectory(input)
+add_subdirectory(asset)
 #add_subdirectory(math)
 
 # Define the main retronomicon engine library
@@ -14,6 +15,7 @@ target_link_libraries(retronomicon-sdl
     PUBLIC
         retronomicon
         retronomicon-sdl-graphics
+        retronomicon-sdl-asset
         retronomicon-sdl-manager
         retronomicon-sdl-input
         SDL2
