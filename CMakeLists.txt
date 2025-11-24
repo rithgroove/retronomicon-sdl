@@ -14,6 +14,7 @@ set(RETRO_SDL_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include CACHE PATH "Retron
 
 # External libraries
 add_subdirectory(external/SDL2)
+add_subdirectory(external/SDL2_mixer)
 
 # Engine source (will add retronomicon-sdl library)
 add_subdirectory(src)
@@ -22,6 +23,7 @@ add_subdirectory(src)
 include_directories(
     ${RETRO_SDL_DIR}/include
     ${RETRO_SDL_DIR}/external/SDL2/include
+    ${RETRO_SDL_DIR}/external/SDL2_mixer/include
 )
 
 # Optional: Message info
