@@ -1,18 +1,18 @@
-file(GLOB_RECURSE SDL_ASSET_PLUGIN CONFIGURE_DEPENDS
+file(GLOB_RECURSE SDL_AUDIO_PLUGIN CONFIGURE_DEPENDS
     ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp
 )
 
-add_library(retronomicon-sdl-asset OBJECT ${SDL_ASSET_PLUGIN})
+add_library(retronomicon-sdl-audio OBJECT ${SDL_AUDIO_PLUGIN})
 
 target_include_directories(
-    retronomicon-sdl-asset PUBLIC
+    retronomicon-sdl-audio PUBLIC
     ${RETRO_DIR}/include
     ${RETRO_SDL_DIR}/include
     ${RETRO_SDL_DIR}/external/SDL2/include
     ${RETRO_SDL_DIR}/external/SDL2_mixer/include
 )
 
-target_link_libraries(retronomicon-sdl-asset
+target_link_libraries(retronomicon-sdl-audio
         retronomicon
         SDL2
         SDL2_mixer
