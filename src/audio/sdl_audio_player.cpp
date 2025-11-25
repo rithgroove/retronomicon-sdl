@@ -29,7 +29,7 @@ bool SDLAudioPlayer::init() {
         return false;
     }
 
-    int flags = MIX_INIT_OGG | MIX_INIT_MP3;
+    int flags = MIX_INIT_OGG;
     int initted = Mix_Init(flags);
 
     if ((initted & flags) != flags) {
@@ -145,7 +145,10 @@ bool SDLAudioPlayer::loadSoundEffect(const std::string& name, const std::string&
 
     if (m_sfxCache.find(name) != m_sfxCache.end())
         return true;
-
+    std::cerr << "[SDL_mixer] Mix_Init flags: " << Mix_Init(0) << "\n";
+    std::cerr << "[SDL_mixer] Query OGG support: " 
+              << ((Mix_Init(0) & MIX_INIT_OGG) ? "YES" : "NO") << "\n";
+    std::cerr << "[SDL_mixer] Load error: " << Mix_GetError() << "\n";
     Mix_Chunk* chunk = Mix_LoadWAV(path.c_str());
     if (!chunk) {
         std::cerr << "[SDL_mixer] Failed to load SFX: " << path << "\n";
@@ -156,6 +159,7 @@ bool SDLAudioPlayer::loadSoundEffect(const std::string& name, const std::string&
     m_sfxCache[name] = chunk;
     return true;
 }
+
 
 void SDLAudioPlayer::playSoundEffect(const std::string& name, float volume, bool loop) {
     auto it = m_sfxCache.find(name);

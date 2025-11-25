@@ -40,6 +40,8 @@ SDLWindow::SDLWindow(const std::string& title, int width, int height)
             std::string("Failed to create SDL renderer: ") + SDL_GetError()
         );
     }
+
+    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");    
 }
 
 SDLWindow::~SDLWindow() {

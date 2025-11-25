@@ -13,7 +13,7 @@ namespace retronomicon::sdl::input {
         m_mouseButtons = 0;
 
         SDL_Event event;
-        std::cout<<"poll called"<<std::endl;
+        // std::cout<<"poll called"<<std::endl;
         // Process all SDL events (same idea as GLFW polling)
         while (SDL_PollEvent(&event)) {
 
