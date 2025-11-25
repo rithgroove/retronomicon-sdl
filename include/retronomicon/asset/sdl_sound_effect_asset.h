@@ -1,17 +1,23 @@
 #pragma once
 
 #include "retronomicon/asset/sound_effect_asset.h"
+#include <SDL2/SDL_audio.h>
+
 #include <string>
 #include <vector>
-#include <SDL2/SDL_audio.h>
 
 namespace retronomicon::sdl::asset {
 
     /**
      * @brief SDL decoder-only sound effect asset.
      *
-     * Decodes WAV/OGG → PCM (int16 or uint8).
-     * SDL backend will upload PCM to SDL-Audio or SDL_mixer.
+     * This class converts WAV/OGG files into raw PCM memory.
+     * The SDL audio backend (SDL_mixer or raw SDL audio) is responsible
+     * for uploading and playing the PCM data.
+     *
+     * IMPORTANT:
+     *   The header intentionally contains no stb_vorbis references,
+     *   because SDL_mixer embeds its own stb version internally.
      */
     class SDLSoundEffectAsset final : public retronomicon::asset::SoundEffectAsset {
     public:
@@ -23,29 +29,43 @@ namespace retronomicon::sdl::asset {
         /**
          * @brief Decode WAV or OGG audio data into PCM memory.
          *
-         * @param outData  Raw PCM bytes.
-         * @param outFmt   SDL_AudioFormat (AUDIO_S16LSB, AUDIO_U8, etc.)
-         * @param outFreq  Sample rate (Hz)
-         * @param outChannels Number of channels (1 or 2)
+         * @param outData        Raw PCM bytes.
+         * @param outFmt         SDL_AudioFormat (AUDIO_S16LSB, AUDIO_U8, etc.)
+         * @param outFreq        Sample rate (Hz)
+         * @param outChannels    1 = mono, 2 = stereo
          */
         bool decode(std::vector<Uint8>& outData,
                     SDL_AudioFormat& outFmt,
                     int& outFreq,
                     int& outChannels);
 
-        // Dummy overrides (assets no longer own audio)
+        // ---------------------------------------------------------------------
+        // Dummy overrides — backend (SDL) owns playback, not the asset itself.
+        // ---------------------------------------------------------------------
         bool load() override { return true; }
         void unload() override {}
-        void play(bool loop = false) override {}
+        void play(bool /*loop*/ = false) override {}
         void stop() override {}
 
     private:
+        /**
+         * @brief Decode WAV files via SDL_LoadWAV.
+         */
         bool loadWavFile(const std::string& path,
                          std::vector<Uint8>& data,
                          SDL_AudioFormat& fmt,
                          int& freq,
                          int& channels);
 
+        /**
+         * @brief Decode OGG files.
+         *
+         * Implementation options:
+         *  - Use stb_vorbis in the .cpp only (NO symbol conflicts allowed).
+         *  - OR use SDL_mixer's Mix_LoadWAV if you want to avoid stb entirely.
+         *
+         * Header remains neutral.
+         */
         bool loadOggFile(const std::string& path,
                          std::vector<Uint8>& data,
                          SDL_AudioFormat& fmt,

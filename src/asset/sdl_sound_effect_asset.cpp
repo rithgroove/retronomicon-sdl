@@ -1,15 +1,14 @@
 #include "retronomicon/asset/sdl_sound_effect_asset.h"
+
 #include <SDL.h>
 #include <SDL_audio.h>
+#include <SDL_mixer.h>
 
 #include <fstream>
 #include <cstring>
 #include <iostream>
 #include <algorithm>
 #include <filesystem>
-
-#define STB_VORBIS_IMPLEMENTATION
-#include "stb_vorbis.c"
 
 namespace retronomicon::sdl::asset {
 
@@ -32,18 +31,14 @@ namespace retronomicon::sdl::asset {
         std::string ext = std::filesystem::path(m_path).extension().string();
         std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
 
-        bool ok = false;
-
         if (ext == ".wav")
-            ok = loadWavFile(m_path, outData, outFmt, outFreq, outChannels);
-        else if (ext == ".ogg")
-            ok = loadOggFile(m_path, outData, outFmt, outFreq, outChannels);
-        else {
-            std::cerr << "[SDLSoundEffectAsset] Unsupported audio format: " << ext << "\n";
-            return false;
-        }
+            return loadWavFile(m_path, outData, outFmt, outFreq, outChannels);
 
-        return ok;
+        if (ext == ".ogg")
+            return loadOggFile(m_path, outData, outFmt, outFreq, outChannels);
+
+        std::cerr << "[SDLSoundEffectAsset] Unsupported audio format: " << ext << "\n";
+        return false;
     }
 
     /**************************************************************************
@@ -57,7 +52,7 @@ namespace retronomicon::sdl::asset {
         int& freq,
         int& channels)
     {
-        SDL_AudioSpec spec;
+        SDL_AudioSpec spec{};
         Uint8* wavBuffer = nullptr;
         Uint32 wavLength = 0;
 
@@ -66,8 +61,8 @@ namespace retronomicon::sdl::asset {
             return false;
         }
 
-        fmt = spec.format;       // AUDIO_S16LSB, etc.
-        freq = spec.freq;
+        fmt      = spec.format;
+        freq     = spec.freq;
         channels = spec.channels;
 
         data.resize(wavLength);
@@ -78,7 +73,7 @@ namespace retronomicon::sdl::asset {
     }
 
     /**************************************************************************
-     * OGG Decoder (stb_vorbis)
+     * OGG Decoder (SDL_mixer version — NO stb_vorbis!)
      **************************************************************************/
 
     bool SDLSoundEffectAsset::loadOggFile(
@@ -88,24 +83,25 @@ namespace retronomicon::sdl::asset {
         int& freq,
         int& channels)
     {
-        int c = 0;
-        int sr = 0;
-        short* output = nullptr;
-
-        int samples = stb_vorbis_decode_filename(path.c_str(), &c, &sr, &output);
-        if (samples < 0)
+        // SDL_mixer loads WAV/OGG/MP3/etc as "WAV" chunks
+        Mix_Chunk* chunk = Mix_LoadWAV(path.c_str());
+        if (!chunk) {
+            std::cerr << "[SDL_mixer] Failed to load OGG: " << path
+                      << " (" << Mix_GetError() << ")\n";
             return false;
+        }
 
-        channels = c;
-        freq = sr;
+        // SDL_mixer stores raw PCM in the chunk
+        data.resize(chunk->alen);
+        std::memcpy(data.data(), chunk->abuf, chunk->alen);
 
-        fmt = AUDIO_S16LSB; // stb_vorbis gives 16-bit signed little-endian_pcm
+        // Since SDL_mixer decodes to its mixer format,
+        // we assume the output format matches Mix_OpenAudio() settings.
+        fmt      = MIX_DEFAULT_FORMAT;  // Usually AUDIO_S16LSB
+        freq     = 44100;               // Depends on Mix_OpenAudio()
+        channels = 2;                   // Stereo mixer output
 
-        size_t size = samples * channels * sizeof(short);
-        data.resize(size);
-        std::memcpy(data.data(), output, size);
-
-        free(output);
+        Mix_FreeChunk(chunk);
         return true;
     }
 

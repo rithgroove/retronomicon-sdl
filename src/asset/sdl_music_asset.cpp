@@ -1,14 +1,13 @@
 #include "retronomicon/asset/sdl_music_asset.h"
-#include <cstring>
 
 #include <SDL.h>
 #include <SDL_audio.h>
+#include <SDL_mixer.h>
+
+#include <cstring>
 #include <filesystem>
 #include <algorithm>
 #include <iostream>
-
-#define STB_VORBIS_IMPLEMENTATION
-#include "stb_vorbis.c"
 
 namespace retronomicon::sdl::asset {
 
@@ -53,7 +52,7 @@ namespace retronomicon::sdl::asset {
                                     int& outFreq,
                                     int& outChannels)
     {
-        SDL_AudioSpec spec;
+        SDL_AudioSpec spec{};
         Uint8* buffer = nullptr;
         Uint32 length = 0;
 
@@ -75,7 +74,7 @@ namespace retronomicon::sdl::asset {
 
 
     /**************************************************************************
-     * OGG Loader (stb_vorbis)
+     * OGG Loader (SDL_mixer — No stb_vorbis!)
      **************************************************************************/
 
     bool SDLMusicAsset::loadOggFile(const std::string& path,
@@ -84,30 +83,26 @@ namespace retronomicon::sdl::asset {
                                     int& outFreq,
                                     int& outChannels)
     {
-        int channels = 0;
-        int sampleRate = 0;
-        short* pcmData = nullptr;
-
-        int samples = stb_vorbis_decode_filename(path.c_str(),
-                                                 &channels,
-                                                 &sampleRate,
-                                                 &pcmData);
-
-        if (samples < 0) {
-            std::cerr << "[SDL] Failed to decode OGG: " << path << "\n";
+        // SDL_mixer treats any supported format (WAV, OGG, MP3, etc.)
+        // as a "WAV chunk" after decoding.
+        Mix_Chunk* chunk = Mix_LoadWAV(path.c_str());
+        if (!chunk) {
+            std::cerr << "[SDL_mixer] Failed to decode OGG: " << path
+                      << " (" << Mix_GetError() << ")\n";
             return false;
         }
 
-        outChannels = channels;
-        outFreq     = sampleRate;
-        outFmt      = AUDIO_S16LSB;
+        // Copy decoded PCM data
+        outPCM.resize(chunk->alen);
+        std::memcpy(outPCM.data(), chunk->abuf, chunk->alen);
 
-        size_t byteCount = samples * channels * sizeof(short);
-        outPCM.resize(byteCount);
+        // SDL_mixer decodes into the mixer output format.
+        // Use the settings defined by Mix_OpenAudio().
+        outFmt      = MIX_DEFAULT_FORMAT; // Usually AUDIO_S16LSB
+        outFreq     = 44100;
+        outChannels = 2;
 
-        std::memcpy(outPCM.data(), pcmData, byteCount);
-        free(pcmData);
-
+        Mix_FreeChunk(chunk);
         return true;
     }
 
