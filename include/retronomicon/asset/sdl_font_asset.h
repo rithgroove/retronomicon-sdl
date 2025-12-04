@@ -1,8 +1,11 @@
 #pragma once
 
+#include <vector>
+#include <string>
 #include <memory>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
+
 #include "retronomicon/asset/font_asset.h"
 
 namespace retronomicon::sdl::asset {
@@ -17,38 +20,44 @@ public:
                  int pointSize)
         : FontAsset(path, name, pointSize) {}
 
-    virtual ~SDLFontAsset() {
-        unload();
-    }
+    ~SDLFontAsset() override { unload(); }
 
-    /*************************
-     * Backend-specific loader
-     *************************/
-    bool load(SDL_Renderer* renderer);    // SDL-specific
-    bool load() override { return false; } // disable core load()
-
+    // ------------------------------------------------------------
+    // Core-compatible load/unload API
+    // ------------------------------------------------------------
+    bool load() override;         // now backend-specific, no renderer needed
     void unload() override;
     bool isLoaded() const noexcept override { return m_isLoaded; }
 
-    SDL_Texture* getTextureAtlas() const noexcept { return m_textureAtlas; }
+    // Pixel atlas (used by SDLTextureManager)
+    const std::vector<uint8_t>& getAtlasPixels() const noexcept { return m_pixels; }
     int getAtlasWidth() const noexcept { return m_atlasWidth; }
     int getAtlasHeight() const noexcept { return m_atlasHeight; }
 
     std::string to_string() const override;
 
 private:
-    bool loadGlyphsAndBuildAtlas(SDL_Renderer* renderer);
-    bool renderGlyphToAtlas(SDL_Surface* atlasSurface,
-                            char c,
-                            int x, int y,
-                            TTF_Font* font);
+    bool loadGlyphs();  // extract glyph metrics + bitmap surfaces
+    bool buildAtlas();  // pack bitmaps into m_pixels
 
 private:
     bool m_isLoaded = false;
 
-    SDL_Texture* m_textureAtlas = nullptr;
+    // Atlas image
+    std::vector<uint8_t> m_pixels; // RGBA
     int m_atlasWidth = 0;
     int m_atlasHeight = 0;
+
+    // Temporary glyph surfaces before packing
+    struct GlyphSurface {
+        SDL_Surface* surf;
+        int width;
+        int height;
+        int bearingX;
+        int bearingY;
+        int advance;
+    };
+    std::unordered_map<char, GlyphSurface> m_surfaces;
 };
 
 } // namespace retronomicon::sdl::asset

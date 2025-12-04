@@ -12,6 +12,7 @@ namespace retronomicon::sdl::graphics {
     class SDLTexture : public Texture {
         public:
             SDLTexture(SDL_Renderer* renderer, std::shared_ptr<ImageAsset> image);
+            SDLTexture(SDL_Renderer* renderer, SDL_Texture* existingTexture);
             ~SDLTexture();
 
             int getWidth() const override;

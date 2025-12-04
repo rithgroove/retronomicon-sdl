@@ -1,5 +1,6 @@
 #include "retronomicon/graphics/sdl_texture.h"
 #include <stdexcept>
+#include <iostream>
 
 namespace retronomicon::sdl::graphics {
 
@@ -31,6 +32,17 @@ namespace retronomicon::sdl::graphics {
         SDL_FreeSurface(surface);
     }
 
+    SDLTexture::SDLTexture(SDL_Renderer* renderer, SDL_Texture* existingTexture)
+        : m_texture(existingTexture)
+    {
+        if (!existingTexture) {
+            std::cerr << "[SDLTexture] ERROR: existingTexture is null\n";
+            return;
+        }
+
+        SDL_QueryTexture(existingTexture, nullptr, nullptr, &m_width, &m_height);
+    }
+    
     SDLTexture::~SDLTexture() {
         if (m_texture) {
             SDL_DestroyTexture(m_texture);

@@ -1,32 +1,44 @@
 #include "retronomicon/asset/sdl_font_asset.h"
 #include <iostream>
+#include <algorithm>
 
 namespace retronomicon::sdl::asset {
+
+// ------------------------------------------------------------
+// Utility
+// ------------------------------------------------------------
+static SDL_Surface* createBlankRGBA(int w, int h) {
+    return SDL_CreateRGBSurfaceWithFormat(
+        0, w, h, 32, SDL_PIXELFORMAT_RGBA32
+    );
+}
 
 std::string SDLFontAsset::to_string() const {
     return "SDLFontAsset(name=" + m_name +
            ", path=" + m_path +
-           ", size=" + std::to_string(m_pointSize) + ")";
+           ", size=" + std::to_string(m_pointSize) +
+           ", atlas=" + std::to_string(m_atlasWidth) + "x" +
+                        std::to_string(m_atlasHeight) + ")";
 }
 
-bool SDLFontAsset::load(SDL_Renderer* renderer) {
+// ------------------------------------------------------------
+// LOAD
+// ------------------------------------------------------------
+bool SDLFontAsset::load() {
     if (m_isLoaded) return true;
 
-    if (!renderer) {
-        std::cerr << "SDLFontAsset: renderer is null\n";
+    if (TTF_WasInit() == 0 && TTF_Init() != 0) {
+        std::cerr << "[SDLFontAsset] SDL_ttf init failed: " << TTF_GetError() << "\n";
         return false;
     }
 
-    if (TTF_WasInit() == 0) {
-        if (TTF_Init() != 0) {
-            std::cerr << "SDLFontAsset: failed to init SDL_ttf: "
-                      << TTF_GetError() << "\n";
-            return false;
-        }
+    if (!loadGlyphs()) {
+        std::cerr << "[SDLFontAsset] Failed to load glyphs.\n";
+        return false;
     }
 
-    if (!loadGlyphsAndBuildAtlas(renderer)) {
-        std::cerr << "SDLFontAsset: Failed to build atlas\n";
+    if (!buildAtlas()) {
+        std::cerr << "[SDLFontAsset] Failed to build atlas.\n";
         return false;
     }
 
@@ -37,114 +49,133 @@ bool SDLFontAsset::load(SDL_Renderer* renderer) {
 void SDLFontAsset::unload() {
     if (!m_isLoaded) return;
 
-    if (m_textureAtlas) {
-        SDL_DestroyTexture(m_textureAtlas);
-        m_textureAtlas = nullptr;
+    for (auto& [c, gs] : m_surfaces) {
+        if (gs.surf) SDL_FreeSurface(gs.surf);
     }
+    m_surfaces.clear();
+
+    m_pixels.clear();
+    m_pixels.shrink_to_fit();
+
+    m_atlasWidth = 0;
+    m_atlasHeight = 0;
+
+    m_glyphs.clear();
 
     m_isLoaded = false;
 }
 
-/********************************************************************
- * loadGlyphsAndBuildAtlas
- ********************************************************************/
-bool SDLFontAsset::loadGlyphsAndBuildAtlas(SDL_Renderer* renderer) {
+// ------------------------------------------------------------
+// STEP 1: LOAD GLYPHS (metrics + individual surfaces)
+// ------------------------------------------------------------
+bool SDLFontAsset::loadGlyphs() {
     TTF_Font* font = TTF_OpenFont(m_path.c_str(), m_pointSize);
     if (!font) {
-        std::cerr << "SDLFontAsset: Could not load font "
-                  << m_path << ": " << TTF_GetError() << "\n";
+        std::cerr << "[SDLFontAsset] Failed to open font: "
+                  << m_path << " (" << TTF_GetError() << ")\n";
         return false;
     }
 
-    // Determine atlas cell size
     int maxW = 0, maxH = 0;
+
     for (char c = 32; c < 127; c++) {
         int minx, maxx, miny, maxy, advance;
-        if (TTF_GlyphMetrics(font, c, &minx, &maxx, &miny, &maxy, &advance) == 0) {
-            maxW = std::max(maxW, maxx - minx);
-            maxH = std::max(maxH, maxy - miny);
-        }
-    }
 
-    const int cols = 16;
-    const int rows = 6;
+        if (TTF_GlyphMetrics(font, c, &minx, &maxx, &miny, &maxy, &advance) != 0)
+            continue;
 
-    m_atlasWidth  = cols * maxW;
-    m_atlasHeight = rows * maxH;
+        SDL_Color white = {255,255,255,255};
+        SDL_Surface* glyphSurf = TTF_RenderGlyph_Blended(font, c, white);
 
-    SDL_Surface* atlas = SDL_CreateRGBSurfaceWithFormat(
-        0,
-        m_atlasWidth,
-        m_atlasHeight,
-        32,
-        SDL_PIXELFORMAT_RGBA32
-    );
+        if (!glyphSurf)
+            continue;
 
-    if (!atlas) {
-        std::cerr << "SDLFontAsset: Failed to create atlas surface\n";
-        TTF_CloseFont(font);
-        return false;
-    }
+        int w = glyphSurf->w;
+        int h = glyphSurf->h;
 
-    SDL_FillRect(atlas, nullptr,
-                 SDL_MapRGBA(atlas->format, 0, 0, 0, 0));
+        maxW = std::max(maxW, w);
+        maxH = std::max(maxH, h);
 
-    int x = 0, y = 0;
-
-    for (char c = 32; c < 127; c++) {
-        renderGlyphToAtlas(atlas, c, x, y, font);
-
-        int minx, maxx, miny, maxy, adv;
-        TTF_GlyphMetrics(font, c, &minx, &maxx, &miny, &maxy, &adv);
-
-        m_glyphs[c] = {
-            adv, 0,
-            minx, maxy,
-            maxx - minx, maxy - miny
+        m_surfaces[c] = {
+            glyphSurf,
+            w,
+            h,
+            minx,
+            maxy,
+            advance
         };
-
-        x += maxW;
-        if (x + maxW > m_atlasWidth) {
-            x = 0;
-            y += maxH;
-        }
     }
 
-    m_textureAtlas = SDL_CreateTextureFromSurface(renderer, atlas);
-    SDL_FreeSurface(atlas);
     TTF_CloseFont(font);
 
-    if (!m_textureAtlas) {
-        std::cerr << "SDLFontAsset: Failed to create texture: "
-                  << SDL_GetError() << "\n";
+    if (m_surfaces.empty()) {
+        std::cerr << "[SDLFontAsset] No glyphs were rasterized.\n";
         return false;
     }
 
     return true;
 }
 
-/********************************************************************
- * renderGlyphToAtlas
- ********************************************************************/
-bool SDLFontAsset::renderGlyphToAtlas(SDL_Surface* atlas,
-                                      char c,
-                                      int x, int y,
-                                      TTF_Font* font)
-{
-    SDL_Color white = {255, 255, 255, 255};
-    SDL_Surface* glyph = TTF_RenderGlyph_Blended(font, c, white);
+// ------------------------------------------------------------
+// STEP 2: PACK GLYPH SURFACES INTO ATLAS (RGBA pixel buffer)
+// ------------------------------------------------------------
+bool SDLFontAsset::buildAtlas() {
+    if (m_surfaces.empty()) return false;
 
-    if (!glyph)
+    // Simple fixed grid atlas (same as OpenGL stub)
+    int cellSize = 0;
+    for (auto& [c, gs] : m_surfaces)
+        cellSize = std::max(cellSize, std::max(gs.width, gs.height));
+
+    int cols = 16;
+    int rows = (int)((m_surfaces.size() + cols - 1) / cols);
+
+    m_atlasWidth  = cols * cellSize;
+    m_atlasHeight = rows * cellSize;
+
+    SDL_Surface* atlas = createBlankRGBA(m_atlasWidth, m_atlasHeight);
+    if (!atlas) {
+        std::cerr << "[SDLFontAsset] Failed to create atlas surface.\n";
         return false;
+    }
 
-    SDL_Rect dst;
-    dst.x = x;
-    dst.y = y;
-    dst.w = glyph->w;
-    dst.h = glyph->h;
+    SDL_FillRect(atlas, nullptr, SDL_MapRGBA(atlas->format, 0, 0, 0, 0));
 
-    SDL_BlitSurface(glyph, nullptr, atlas, &dst);
-    SDL_FreeSurface(glyph);
+    int idx = 0;
+    for (auto& [c, gs] : m_surfaces) {
+        int col = idx % cols;
+        int row = idx / cols;
+
+        int x = col * cellSize;
+        int y = row * cellSize;
+
+        SDL_Rect dst = {x, y, gs.width, gs.height};
+        SDL_BlitSurface(gs.surf, nullptr, atlas, &dst);
+
+        // Fill glyph metrics
+        auto& gm = m_glyphs[c];
+        gm.width  = gs.width;
+        gm.height = gs.height;
+        gm.advanceX = gs.advance;
+        gm.bearingX = gs.bearingX;
+        gm.bearingY = gs.bearingY;
+
+        gm.atlasX = x;
+        gm.atlasY = y;
+
+        gm.u0 = float(x) / m_atlasWidth;
+        gm.v0 = float(y) / m_atlasHeight;
+        gm.u1 = float(x + gs.width) / m_atlasWidth;
+        gm.v1 = float(y + gs.height) / m_atlasHeight;
+
+        idx++;
+    }
+
+    // Convert SDL_Surface → raw RGBA buffer
+    m_pixels.resize(m_atlasWidth * m_atlasHeight * 4);
+    memcpy(m_pixels.data(), atlas->pixels, m_pixels.size());
+
+    SDL_FreeSurface(atlas);
     return true;
 }
 
