@@ -22,6 +22,7 @@ target_link_libraries(retronomicon-sdl
         retronomicon-sdl-audio
         SDL2
         SDL2_mixer
+        SDL2_ttf
 )
 
 # Later you can easily extend here:

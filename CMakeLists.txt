@@ -27,6 +27,7 @@ set(SDL2MIXER_FLUIDSYNTH OFF CACHE BOOL "" FORCE)
 # use STB vorbis
 set(SDL2MIXER_VORBIS STB CACHE BOOL "" FORCE)
 add_subdirectory(external/SDL2_mixer)
+add_subdirectory(external/SDL2_ttf)
 
 # Engine source (will add retronomicon-sdl library)
 add_subdirectory(src)
@@ -36,6 +37,7 @@ include_directories(
     ${RETRO_SDL_DIR}/include
     ${RETRO_SDL_DIR}/external/SDL2/include
     ${RETRO_SDL_DIR}/external/SDL2_mixer/include
+    ${RETRO_SDL_DIR}/external/SDL2_ttf/include
 )
 
 # Optional: Message info
