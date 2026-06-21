@@ -5,7 +5,6 @@ add_subdirectory(graphics)
 add_subdirectory(manager)
 add_subdirectory(input)
 add_subdirectory(asset)
-add_subdirectory(audio)
 #add_subdirectory(math)
 
 # Define the main retronomicon engine library
@@ -19,12 +18,10 @@ target_link_libraries(retronomicon-sdl
         retronomicon-sdl-asset
         retronomicon-sdl-manager
         retronomicon-sdl-input
-        retronomicon-sdl-audio
         SDL2
-        SDL2_mixer
         SDL2_ttf
 )
 
 # Later you can easily extend here:
 # add_subdirectory(physics)
-# add_subdirectory(audio)
+# Audio backends are selected through retronomicon-audio at the workspace level.
